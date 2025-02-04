@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Protocol Map</title>
+    <script src="https://unpkg.com/three"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script src="https://unpkg.com/topojson"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: black; }
+        #globe-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+        }
+        #tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: none;
+            pointer-events: none;
+            z-index: 10;
+        }
+    
+       
+
+        #saved_window {
+            display: none;
+            position: fixed;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 30, 30, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            z-index: 100;
+            width: 300px;
+            color: white;
+        }
+        #saved_window_text {
+            padding: 5px;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid white;
+            border-radius: 5px;
+            background: black;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+
+        #saved_window button {
+            background: white;
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 100;
+        }
+
+        #saved_window button:hover {
+            background: lightgray;
+        }
+
+        #social-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: rgb(255, 255, 255);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.social-btn img {
+    width: 60%;
+    height: 60%;
+    transition: transform 0.3s ease;
+}
+
+
+.social-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.social-btn:hover img {
+    transform: scale(1.2);
+}
+
+
+.twitter:hover {
+    background: #ffffff;
+}
+
+.discord:hover {
+    background: #030307;
+}
+
+.telegram:hover {
+    background: #0088cc;
+}
+
+.story:hover {
+    background: #ffffff;
+}
+
+
+    </style>
+</head>
+<body>
+    <div id="title">꧁Story Protocol Map꧂</div>
+    <div id="tooltip"></div>
+    <div id="globe-container"></div>
+
+    <div id="saved_window">
+        <h2 id="saved_window_text"></h2>
+        <button id="saved_window_btn">Ok</button>
+
+    </div>
+    
+    <div id="social-buttons">
+        <a href="https://www.story.foundation/" target="_blank" class="social-btn story">
+            <img src="story_logo.png" alt="Story">
+        </a>
+        <a href="https://x.com/DDenicah" target="_blank" class="social-btn twitter">
+            <img src="x_icon.png" alt="Twitter">
+        </a>
+        <a href="https://discord.gg/storyprotocol" target="_blank" class="social-btn discord">
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968756.png" alt="Discord">
+        </a>
+        <a href="https://t.me/ov4rlxrd" target="_blank" class="social-btn telegram">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram">
+        </a>
+    </div>
+
+    <script>
+        window.onload = async function () {
+            const globeContainer = document.getElementById('globe-container');
+            const tooltip = document.getElementById('tooltip');
+            const savedWindow = document.getElementById('saved_window')
+            const savedWindowBtn = document.getElementById('saved_window_btn')
+            const savedWindowText = document.getElementById('saved_window_text')
+
+            let selectedCountry = null;
+            let hoveredCountry = null;
+
+            function getCountryData() {
+                return JSON.parse(localStorage.getItem("countryBadges")) || {};
+            }
+
+            function saveCountryData(data) {
+                localStorage.setItem("countryBadges", JSON.stringify(data));
+            }
+
+            let countryData = getCountryData();
+
+            
+
+            const world = Globe()(globeContainer)
+                .width(window.innerWidth)
+                .height(window.innerHeight)
+                .backgroundColor('#000')
+                .showAtmosphere(true)
+                .atmosphereColor('white')
+                .atmosphereAltitude(0.2)
+                .globeImageUrl(null)
+                .bumpImageUrl('story_logo.png')
+                .showGlobe(true);
+
+            const geoJsonUrl = 'https://unpkg.com/world-atlas@2/countries-110m.json';
+            const worldData = await fetch(geoJsonUrl).then(res => res.json());
+            const countries = topojson.feature(worldData, worldData.objects.countries).features;
+
+
+            world.polygonsData(countries)
+                .polygonCapColor(d => 
+                    selectedCountry === d ? 'white' : 
+                    hoveredCountry === d ? 'white' : 
+                    'rgba(255, 255, 255, 0.1)')
+                .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.5)')
+                .polygonSideColor(() => 'rgba(0, 0, 0, 0.5)')
+                .polygonAltitude(d => selectedCountry === d ? 0.02 : 0.005)
+                .onPolygonClick(d => {
+                    selectedCountry = d;
+                    const countryName = d.properties.name;
+
+        
+                    savedWindowText.innerHTML = `Thx! Story on ${countryName} .`
+                    savedWindow.style.display = 'block'
+                   
+                    
+                    
+                    savedWindowBtn.onclick = function () {
+                        savedWindow.style.display = "none";
+                    };
+
+
+            
+                })
+                .onPolygonHover((hovered, prevHovered) => {
+                    hoveredCountry = hovered;
+                    world.polygonsData(countries);
+
+                    if (hovered) {
+                        const countryName = hovered.properties.name;
+                        tooltip.innerHTML = `${countryName}`;
+                    } else {
+                        tooltip.style.display = 'none';
+                    }
+                });
+
+            document.addEventListener('mousemove', (event) => {
+                tooltip.style.left = `${event.pageX + 10}px`;
+                tooltip.style.top = `${event.pageY + 10}px`;
+            });
+        };
+    </script>
+</body>
+</html>
+
+
+
