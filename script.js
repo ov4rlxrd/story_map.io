@@ -152,7 +152,7 @@ const countries = ["United States of America", "Switzerland", "Japan", "Germany"
                             'rgba(255, 255, 255, 0.1)')
                         .polygonStrokeColor(() => 'rgba(0, 0, 0, 0.5)')
                         
-                        world.globeImageUrl('wallpaper1.png'); // Повторно загружаем изображение после небольшой задержки
+                        world.globeImageUrl('wallpaper.png'); // Повторно загружаем изображение после небольшой задержки
 
                         // toggleMode.textContent = "꧁Deffault Mode꧂";
                     }
