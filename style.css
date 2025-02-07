@@ -76,7 +76,7 @@ body { margin: 0; overflow: hidden; background: black; }
             color: rgb(127, 127, 233);
         }
         
-        /* Стили для кнопки Seeker */
+
         #difficulty_selection_seeker_btn {
             padding: 10px 20px;
             color: white;
@@ -98,7 +98,7 @@ body { margin: 0; overflow: hidden; background: black; }
             box-shadow: 0px 4px 15px rgba(180, 180, 255, 0.5);
         }
         
-        /* Стили для кнопки Adept */
+
         #difficulty_selection_adept_btn {
             padding: 10px 20px;
             color: white;
@@ -120,7 +120,7 @@ body { margin: 0; overflow: hidden; background: black; }
             box-shadow: 0px 4px 15px rgba(180, 180, 255, 0.5);
         }
         
-        /* Стили для кнопки Ascendant */
+ 
         #difficulty_selection_ascendant_btn {
             padding: 10px 20px;
             color: white!important;
