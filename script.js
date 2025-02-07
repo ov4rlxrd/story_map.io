@@ -101,7 +101,7 @@ const countries = ["United States of America", "Switzerland", "Japan", "Germany"
                             foundCountries.add(countryName);
                             rightAnswer.style.display = 'block';
                         }
-                        if (foundCountries.size === 3) {
+                        if (foundCountries.size === difficulty) {
                             winWindow.style.display = 'block'
                             stopTimer();
                         }
